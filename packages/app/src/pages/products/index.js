@@ -30,7 +30,7 @@ import {
   usePagination,
 } from "react-table";
 
-import { useQuery, useLazyQuery } from "@apollo/react-hooks";
+import { useQuery, useLazyQuery, useMutation } from "@apollo/react-hooks";
 import { NetworkStatus } from "apollo-client";
 import gql from "graphql-tag";
 
@@ -42,6 +42,12 @@ const ALL_PRODUCTS_QUERY = gql`
       _id
       name
     }
+  }
+`;
+
+const DELETE_PRODUCT_MUTATION = gql`
+  mutation DeleteProduct($_id: String) {
+    deleteProduct(_id: $_id)
   }
 `;
 
@@ -99,14 +105,14 @@ function Table({ columns, data, loading, error, refetch }) {
           {loading && (
             <PseudoBox as="tr">
               <PseudoBox as="td" colspan="1000" py="2" px="4" color="gray.900">
-                <Box>Loading</Box>
+                <Box textAlign="center">Loading</Box>
               </PseudoBox>
             </PseudoBox>
           )}
           {error && (
             <PseudoBox as="tr">
               <PseudoBox as="td" colspan="1000" py="2" px="4" color="gray.900">
-                <Flex align="center" color="orange.700">
+                <Flex align="center" color="orange.700" justify="center">
                   Error loading products{" "}
                   <Button size="sm" ml="3" onClick={() => refetch()}>
                     Try again
@@ -115,6 +121,24 @@ function Table({ columns, data, loading, error, refetch }) {
               </PseudoBox>
             </PseudoBox>
           )}
+          {!loading && !error && !rows.length ? (
+            <PseudoBox as="tr">
+              <PseudoBox as="td" colspan="1000" py="2" px="4" color="gray.900">
+                <Flex align="center" justify="center">
+                  No products yet{" "}
+                  <Button
+                    size="sm"
+                    ml="3"
+                    variantColor="blue"
+                    as={Link}
+                    href={`/products/new`}
+                  >
+                    Add product
+                  </Button>
+                </Flex>
+              </PseudoBox>
+            </PseudoBox>
+          ) : null}
           {rows.map((row, i) => {
             prepareRow(row);
             return (
@@ -152,6 +176,21 @@ function Table({ columns, data, loading, error, refetch }) {
 }
 
 export default function Product() {
+  const [_deleteProduct, { data: deleteData }] = useMutation(
+    DELETE_PRODUCT_MUTATION
+  );
+
+  const deleteProduct = (_id) => {
+    return (e) => {
+      console.log("delete", _id);
+      _deleteProduct({ variables: { _id } });
+    };
+  };
+
+  useEffect(() => {
+    console.log(deleteData);
+  }, [deleteData]);
+
   const columns = React.useMemo(() => [
     {
       Header: "Name",
@@ -175,7 +214,9 @@ export default function Product() {
             <MenuItem>Download</MenuItem>
             <MenuItem>Create a Copy</MenuItem>
             <MenuItem>Mark as Draft</MenuItem>
-            <MenuItem color="red.500">Delete</MenuItem>
+            <MenuItem color="red.500" onClick={deleteProduct(row.values._id)}>
+              Delete
+            </MenuItem>
           </MenuList>
         </Menu>
       ),
@@ -216,6 +257,7 @@ export default function Product() {
     <Dashboard>
       <PageHeader
         actions={[{ children: "New", as: Link, href: `/products/new` }]}
+        breadcrumbs={[{ title: "Products" }]}
       ></PageHeader>
       <Container>
         <Table

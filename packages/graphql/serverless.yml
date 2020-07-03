@@ -1,0 +1,28 @@
+service: serverless-commerce
+
+plugins:
+  - serverless-offline
+
+provider:
+  name: aws
+  runtime: nodejs12.x
+  stage: dev
+
+functions:
+  test:
+    handler: testHandler.handler
+    events:
+      - http:
+          path: test
+          method: get
+  graphql:
+    handler: graphql.graphqlHandler
+    events:
+      - http:
+          path: graphql
+          method: post
+          cors: true
+      - http:
+          path: graphql
+          method: get
+          cors: true
