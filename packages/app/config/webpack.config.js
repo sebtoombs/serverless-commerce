@@ -8,21 +8,19 @@ const isDevelopment = process.env.NODE_ENV === "development";
 //Dirname should be within cwd. IF not, we're developing the packages
 const isPackageDevelopment = !__dirname.startsWith(process.cwd());
 
-const packageRoot = path.resolve(path.join(__dirname, ".."));
+const packageRoot = fs.realpathSync(path.resolve(path.join(__dirname, "..")));
 
 const paths = {
   projectApp: path.join(process.cwd(), "src"),
-  app: isPackageDevelopment
-    ? path.join(packageRoot, "src")
-    : path.resolve("@serverless-commerce/app/src"),
-  //Todo test this when published. does 'node_modules' work?
-  node_modules: isPackageDevelopment
-    ? path.resolve(path.join(packageRoot, "..", "..", "node_modules"))
-    : "node_modules",
+  //app: isPackageDevelopment
+  //  ? path.join(packageRoot, "src")
+  //  : path.resolve("@serverless-commerce/app/src"),
+  app: path.join(packageRoot, "src"), //Babel-loader cant follow symlinks
   build: path.join(process.cwd(), "build", "app"),
-  public: isPackageDevelopment
-    ? path.join(packageRoot, "public")
-    : path.resolve("@serverless-commerce/app/public"),
+  //public: isPackageDevelopment
+  //  ? path.join(packageRoot, "public")
+  //  : path.resolve("@serverless-commerce/app/public"),
+  public: path.join(packageRoot, "public"),
 };
 
 class ModuleShadowingPlugin {
@@ -75,24 +73,20 @@ class ModuleShadowingPlugin {
   }
 }
 
-//Todo test this when published. is it needed?
-const resolveDependency = (name) => path.join(paths.node_modules, name);
-
 const rules = [
   {
     test: /\.js$/,
     exclude: /node_modules/,
     //Include app files from core app
-    //TODO allow override from client app
     include: [paths.projectApp, paths.app],
     use: {
+      //symlinks again
       loader: require.resolve("babel-loader"),
       options: {
         presets: [
           //Babel-loader doesn't work while symlinked, so provide absolute paths to presets
-          //Todo see if this is required when published
-          resolveDependency("@babel/preset-env"),
-          resolveDependency("babel-preset-react-app"),
+          require.resolve("@babel/preset-env"),
+          require.resolve("babel-preset-react-app"),
         ],
         plugins: [
           isDevelopment ? require.resolve("react-refresh/babel") : null,
@@ -133,11 +127,11 @@ module.exports = {
         projectAppPath: paths.projectApp,
       }),
     ],
-    modules: [
+    /*modules: [
       path.join(process.cwd(), "node_modules"),
       isPackageDevelopment
         ? path.resolve(path.join(packageRoot, "..", "..", "node_modules"))
         : null,
-    ].filter(Boolean),
+    ].filter(Boolean),*/
   },
 };
