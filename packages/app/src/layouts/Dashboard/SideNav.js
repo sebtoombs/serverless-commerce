@@ -69,7 +69,7 @@ const SideNav = () => {
                 key={index}
                 icon={icon}
                 text={text}
-                as={path && !items.length ? Link : null}
+                as={path && !items.length ? Link : "button"}
                 href={path && !items.length ? path : null}
                 items={subItems}
                 active={isActiveItem(items, path)}

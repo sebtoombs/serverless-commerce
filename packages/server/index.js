@@ -1,5 +1,5 @@
-//require = require("esm")(module /*, options*/);
-//require("./src/devServer")();
+require = require("esm")(module /*, options*/);
+module.exports = require("./src/server");
 
-import devServer from "./src/devServer";
-export default devServer;
+//import server from "./src/server";
+//export default server;

@@ -1,7 +1,11 @@
 import arg from "arg";
 import inquirer from "inquirer";
-import dev from "./dev";
-import graphql from "./graphql";
+//import dev from "./dev";
+//import graphql from "./graphql";
+import server from "@serverless-commerce/server";
+import build from "./build";
+import { fork } from "child_process";
+import path from "path";
 
 function parseArgumentsIntoOptions(rawArgs) {
   const command = rawArgs.slice(2)[0];
@@ -51,10 +55,35 @@ async function promptForMissingOptions(options) {
 export async function cli(args) {
   let options = parseArgumentsIntoOptions(args);
   options = await promptForMissingOptions(options);
-  console.log(options);
+  //console.log(options);
+
+  //Some env is required
+  const env = {
+    NODE_ENV: "development",
+    DEBUG: "app",
+  };
 
   if (options.command === `dev`) {
-    dev();
-    graphql();
+    process.env = { ...env, ...process.env };
+    fork(path.resolve(path.join(__dirname, "..", "..", "server")), {
+      cwd: process.cwd(),
+      detached: false,
+      env: process.env,
+    });
+    server();
+  }
+  if (options.command === "start") {
+    env.NODE_ENV = "production";
+    process.env = { ...env, ...process.env };
+    server();
+  }
+  if (options.command === "test") {
+    env.NODE_ENV = "test";
+    process.env = { ...env, ...process.env };
+    server();
+  }
+  if (options.command === "build") {
+    process.env = { ...env, ...process.env };
+    build();
   }
 }

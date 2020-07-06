@@ -16,7 +16,7 @@ functions:
           path: test
           method: get
   graphql:
-    handler: graphql.graphqlHandler
+    handler: graphql.handler
     events:
       - http:
           path: graphql
