@@ -1,6 +1,7 @@
 import arg from "arg";
 import inquirer from "inquirer";
 import dev from "./dev";
+import graphql from "./graphql";
 
 function parseArgumentsIntoOptions(rawArgs) {
   const command = rawArgs.slice(2)[0];
@@ -54,5 +55,6 @@ export async function cli(args) {
 
   if (options.command === `dev`) {
     dev();
+    graphql();
   }
 }

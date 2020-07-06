@@ -7,6 +7,8 @@ const cors = require("cors");
 
 const { format } = require("date-fns");
 
+process.env.DEBUG = "*";
+
 const lambdaEvent = (req) => ({
   body: Object.keys(req.body).length === 0 ? null : JSON.stringify(req.body),
   headers: req.headers,

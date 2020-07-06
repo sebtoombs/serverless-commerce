@@ -3,7 +3,7 @@ import Dashboard from "../../layouts/Dashboard";
 import PageHeader from "../../layouts/Dashboard/PageHeader";
 import Container from "../../components/Container";
 
-import schema from "../../../schema";
+import schema from "@serverless-commerce/core/schema";
 
 import {
   Box,

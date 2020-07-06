@@ -1,6 +1,6 @@
 {
   "name": "@serverless-commerce/core",
-  "version": "1.0.0",
+  "version": "0.0.0",
   "main": "src/index.js",
   "license": "MIT",
   "dependencies": {
@@ -10,5 +10,9 @@
   },
   "bin": {
     "@serverless-commerce/serverless-commerce": "bin/cli"
+  },
+  "scripts": {
+    "pub": "npm publish --registry http://localhost:4873",
+    "unpub": "npm unpublish --force @serverless-commerce/core"
   }
 }

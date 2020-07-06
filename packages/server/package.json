@@ -1,0 +1,17 @@
+{
+  "name": "@serverless-commerce/server",
+  "version": "0.0.0",
+  "main": "./index.js",
+  "license": "MIT",
+  "scripts": {
+    "pub": "npm publish --registry http://localhost:4873",
+    "unpub": "npm unpublish --force @serverless-commerce/server"
+  },
+  "dependencies": {
+    "babel-loader": "^8.1.0",
+    "express": "^4.17.1",
+    "webpack": "^4.43.0",
+    "webpack-dev-middleware": "^3.7.2",
+    "webpack-hot-middleware": "^2.25.0"
+  }
+}

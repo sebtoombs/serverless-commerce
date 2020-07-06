@@ -1,16 +1,16 @@
 const path = require("path");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 
-function CustsomDirectoryResolver(source, target) {
+function CustomDirectoryResolver(source, target) {
   this.source = source || "resolve";
   this.target = target || "resolve";
 }
 
-CustsomDirectoryResolver.prototype.apply = function (resolver) {
+CustomDirectoryResolver.prototype.apply = function (resolver) {
   var target = resolver.ensureHook(this.target);
   resolver
     .getHook(this.source)
-    .tapAsync("CustsomDirectoryResolver", function (
+    .tapAsync("CustomDirectoryResolver", function (
       request,
       resolveContext,
       callback
@@ -44,12 +44,12 @@ module.exports = {
   entry: path.join(__dirname, "src", "index.js"),
   output: {
     filename: "bundle.js",
-    path: path.resolve(__dirname, "./build"),
+    path: path.join(__dirname, "build"),
   },
   module: { rules },
   plugins: [
     new HTMLWebpackPlugin({
-      template: "./public/index.html",
+      template: path.join(__dirname, "public", "index.html"),
     }),
   ],
   devtool: "source-map",
@@ -57,7 +57,8 @@ module.exports = {
     hot: true,
     historyApiFallback: true,
   },
-  resolve: {
+
+  /*resolve: {
     plugins: CustomDirectoryResolver,
-  },
+  },*/
 };
