@@ -1,7 +1,9 @@
 const path = require("path");
 const HTMLWebpackPlugin = require("html-webpack-plugin");
 const fs = require("fs");
+const ReactRefreshWebpackPlugin = require("@pmmmwh/react-refresh-webpack-plugin");
 
+//Todo test this when published. is it needed?
 const resolveDependency = (name) => {
   return fs.realpathSync(
     path.resolve(path.join(__dirname, "..", "..", "node_modules", name))
@@ -16,9 +18,8 @@ const rules = [
     test: /\.js$/,
     exclude: /node_modules/,
     //Include app files from core app
-    include: [
-      fs.realpathSync(path.resolve(path.join(__dirname, "..", "app", "src"))),
-    ],
+    //TODO allow override from client app
+    include: [fs.realpathSync(path.resolve(path.join(__dirname, "src")))],
     //loader: require.resolve("babel-loader"),
     use: {
       loader: require.resolve("babel-loader"),
@@ -28,6 +29,7 @@ const rules = [
           resolveDependency("@babel/preset-env"),
           resolveDependency("babel-preset-react-app"),
         ],
+        plugins: [require.resolve("react-refresh/babel")],
         babelrc: false,
       },
     },
@@ -41,24 +43,18 @@ const rules = [
 
 module.exports = {
   entry: {
-    app: [path.join(__dirname, "..", "app", "src", "index.js")],
+    app: [path.join(__dirname, "src", "index.js")],
   },
   output: {
     filename: "bundle.js",
-    path: path.join(__dirname, "build"),
+    path: path.join(process.cwd(), "build"),
   },
   module: { rules },
   plugins: [
     new HTMLWebpackPlugin({
-      template: path.join(__dirname, "..", "app", "public", "index.html"),
+      template: path.join(__dirname, "public", "index.html"),
     }),
+    new ReactRefreshWebpackPlugin(),
   ],
   devtool: "source-map",
-  /*resolve: {
-    modules: [
-      fs.realpathSync(
-        path.resolve(path.join(__dirname, "..", "..", "node_modules"))
-      ),
-    ],
-  },*/
 };

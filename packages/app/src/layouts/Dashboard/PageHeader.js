@@ -48,7 +48,7 @@ const PageHeader = ({ actions = null, breadcrumbs = [] }) => {
       <Container>
         <Flex alignItems="center" justifyContent="space-between">
           <Box>
-            {breadcrumbs.length ? (
+            {breadcrumbs.length || breadcrumbs === true ? (
               <Breadcrumb
                 color="white"
                 spacing="8px"
@@ -60,19 +60,20 @@ const PageHeader = ({ actions = null, breadcrumbs = [] }) => {
                   </BreadcrumbLink>
                 </BreadcrumbItem>
 
-                {breadcrumbs.map((breadcrumb, index) => (
-                  <BreadcrumbItem key={index}>
-                    {breadcrumb.path ? (
-                      <BreadcrumbLink as={Link} href={breadcrumb.path}>
-                        {breadcrumb.title}
-                      </BreadcrumbLink>
-                    ) : (
-                      <Text as="span" color="gray.200">
-                        {breadcrumb.title}
-                      </Text>
-                    )}
-                  </BreadcrumbItem>
-                ))}
+                {breadcrumbs.length &&
+                  breadcrumbs.map((breadcrumb, index) => (
+                    <BreadcrumbItem key={index}>
+                      {breadcrumb.path ? (
+                        <BreadcrumbLink as={Link} href={breadcrumb.path}>
+                          {breadcrumb.title}
+                        </BreadcrumbLink>
+                      ) : (
+                        <Text as="span" color="gray.200">
+                          {breadcrumb.title}
+                        </Text>
+                      )}
+                    </BreadcrumbItem>
+                  ))}
               </Breadcrumb>
             ) : null}
           </Box>
