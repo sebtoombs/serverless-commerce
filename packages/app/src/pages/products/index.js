@@ -188,7 +188,7 @@ export default function Product() {
   };
 
   useEffect(() => {
-    console.log(deleteData);
+    console.log({ deleteData });
   }, [deleteData]);
 
   const columns = React.useMemo(() => [

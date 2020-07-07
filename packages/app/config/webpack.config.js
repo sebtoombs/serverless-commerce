@@ -127,11 +127,11 @@ module.exports = {
         projectAppPath: paths.projectApp,
       }),
     ],
-    /*modules: [
+    modules: [
       path.join(process.cwd(), "node_modules"),
       isPackageDevelopment
         ? path.resolve(path.join(packageRoot, "..", "..", "node_modules"))
         : null,
-    ].filter(Boolean),*/
+    ].filter(Boolean),
   },
 };
