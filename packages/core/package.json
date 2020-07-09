@@ -6,10 +6,7 @@
   "dependencies": {
     "arg": "^4.1.3",
     "esm": "^3.2.25",
-    "inquirer": "^7.3.0",
-    "@serverless-commerce/server": "^0.0.0",
-    "@serverless-commerce/app": "^0.0.0",
-    "@serverless-commerce/graphql": "^0.0.0"
+    "inquirer": "^7.3.0"
   },
   "bin": {
     "@serverless-commerce/serverless-commerce": "bin/cli"

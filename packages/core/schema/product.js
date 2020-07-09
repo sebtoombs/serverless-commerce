@@ -19,9 +19,9 @@ const product = {
         from: "name",
       },
     },
-    variations: {
-      type: "[ProductVariation]",
-      listType: "nested",
+    variants: {
+      type: "[ProductVariant]",
+      listType: "nested", //or relation. nested is a sub-document
     },
     options: {
       type: "[ProductOption]",

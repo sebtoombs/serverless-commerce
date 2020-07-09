@@ -1,0 +1,12 @@
+{
+  "name": "<%= name %>",
+  "version": "0.1.0",
+  "scripts": {
+    "dev": "serverless-commerce dev",
+    "build": "serverless-commerce build",
+    "start": "serverless-commerce start"
+  },
+  "dependencies": {
+    "@serverless-commerce/core": "file:../serverless-commerce/packages/core"
+  }
+}

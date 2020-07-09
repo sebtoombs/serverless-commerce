@@ -1,7 +1,7 @@
 {
   "name": "@serverless-commerce/server",
   "version": "0.0.0",
-  "main": "./index.js",
+  "main": "index.js",
   "license": "MIT",
   "scripts": {
     "pub": "npm publish --registry http://localhost:4873",

@@ -1,5 +1,10 @@
 require = require("esm")(module /*, options*/);
-module.exports = require("./src/server");
+const server = require("./src/server");
+module.exports = server;
 
-//import server from "./src/server";
-//export default server;
+if (process.argv && process.argv.length >= 3) {
+  const command = process.argv[2];
+  if (command === `start`) {
+    server.default();
+  }
+}

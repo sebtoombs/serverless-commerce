@@ -1,0 +1,16 @@
+{
+  "name": "@serverless-commerce/generator",
+  "version": "0.0.0",
+  "main": "index.js",
+  "license": "MIT",
+  "files": [
+    "project"
+  ],
+  "keywords": [
+    "yeoman-generator"
+  ],
+  "dependencies": {
+    "yeoman-environment": "^2.10.3",
+    "yeoman-generator": "^1.0.0"
+  }
+}
