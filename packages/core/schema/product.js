@@ -1,4 +1,4 @@
-const product = {
+const Product = {
   name: "Product",
   pluralName: "Products",
   fields: {
@@ -28,4 +28,4 @@ const product = {
     },
   },
 };
-export default product;
+export default Product;

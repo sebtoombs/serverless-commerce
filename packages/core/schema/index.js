@@ -1,9 +1,11 @@
-import product from "./product";
-import productVariant from "./productVariant";
+import Product from "./Product";
+import ProductVariant from "./ProductVariant";
 
 const schema = {
-  product,
-  productVariant,
+  Product,
+  ProductVariant,
+  ProductOption,
+  ProductVariantSelectedOption,
 };
 
 export default schema;

@@ -1,10 +1,10 @@
-const productVariant = {
+const ProductVariant = {
   name: "ProductVariant",
   pluralName: "ProductVariants",
   fields: {
     selectedOptions: {
       label: "Options",
-      type: "[ProductVariationSelectedOption]",
+      type: "[ProductVariantSelectedOption]",
       listType: "nested",
     },
     sku: { label: "SKU", type: "String" },
@@ -13,4 +13,4 @@ const productVariant = {
     weightUnit: { type: "String" },
   },
 };
-export default productVariant;
+export default ProductVariant;
