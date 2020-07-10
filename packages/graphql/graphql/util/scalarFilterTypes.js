@@ -1,75 +1,74 @@
-const graphql = require("graphql");
-
 /*
 Basic scalar filter types.
+All other filters are built out of these
 */
 
-module.exports.StringFilterType = new graphql.GraphQLInputObjectType({
-  name: "StringFilterType",
-  fields: () => ({
+module.exports.String__Filter = {
+  name: "String__Filter",
+  fields: {
     eq: {
-      type: graphql.GraphQLString,
+      type: "String",
     },
     regex: {
-      type: graphql.GraphQLString,
+      type: "String",
     },
-  }),
-  type: graphql.GraphQLInputType,
-});
+  },
+  type: "Input",
+};
 
-module.exports.BooleanFilterType = new graphql.GraphQLInputObjectType({
-  name: "BooleanFilterType",
-  fields: () => ({
+module.exports.Boolean__Filter = {
+  name: "Boolean__Filter",
+  fields: {
     eq: {
-      type: graphql.GraphQLBoolean,
+      type: "Boolean",
     },
     ne: {
-      type: graphql.GraphQLBoolean,
+      type: "Boolean",
     },
-  }),
-  type: graphql.GraphQLInputType,
-});
+  },
+  type: "Input",
+};
 
-module.exports.FloatFilterType = new graphql.GraphQLInputObjectType({
-  name: "FloatFilterType",
-  fields: () => ({
+module.exports.Float__Filter = {
+  name: "Float__Filter",
+  fields: {
     eq: {
-      type: graphql.GraphQLFloat,
+      type: "Float",
     },
     lt: {
-      type: graphql.GraphQLFloat,
+      type: "Float",
     },
     gt: {
-      type: graphql.GraphQLFloat,
+      type: "Float",
     },
     lte: {
-      type: graphql.GraphQLFloat,
+      type: "Float",
     },
     gte: {
-      type: graphql.GraphQLFloat,
+      type: "Float",
     },
-  }),
-  type: graphql.GraphQLInputType,
-});
+  },
+  type: "Input",
+};
 
-module.exports.IntFilterType = new graphql.GraphQLInputObjectType({
-  name: "IntFilterType",
-  fields: () => ({
+module.exports.Int__Filter = {
+  name: "Int__Filter",
+  fields: {
     eq: {
-      type: graphql.GraphQLInt,
+      type: "Int",
     },
     lt: {
-      type: graphql.GraphQLInt,
+      type: "Int",
     },
     gt: {
-      type: graphql.GraphQLInt,
+      type: "Int",
     },
     lte: {
-      type: graphql.GraphQLInt,
+      type: "Int",
     },
     gte: {
-      type: graphql.GraphQLInt,
+      type: "Int",
     },
-  }),
-  type: graphql.GraphQLInputType,
-});
+  },
+  type: "Input",
+};

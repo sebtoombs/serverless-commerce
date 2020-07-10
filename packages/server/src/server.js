@@ -23,10 +23,10 @@ const mergeWebpackConfig = () => {
     : webpackConfig;
 };
 
-export default function server() {
+module.exports = function server() {
   const isDevelopment = process.env.NODE_ENV === "development";
   const app = express();
-  const port = process.env.PORT || 8080;
+  //const port = process.env.PORT || 8080;
 
   app.use(emulator(serverConfig));
 
@@ -72,11 +72,11 @@ export default function server() {
     )
   );
 
-  app.listen(port, () => {
+  /*app.listen(port, () => {
     console.log(
       (isDevelopment ? "Dev" : "") + "Server started on port:" + port
     );
-  });
+  });*/
 
   return app;
-}
+};

@@ -78,7 +78,7 @@ export async function cli(args) {
   }
   if (options.command === `dev`) {
     process.env = { ...env, ...process.env };
-    fork(require.resolve("@serverless-commerce/server"), ["start"], {
+    fork(require.resolve("@serverless-commerce/server"), ["dev"], {
       cwd: process.cwd(),
       detached: false,
       env: process.env,

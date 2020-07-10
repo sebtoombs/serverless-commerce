@@ -1,27 +1,27 @@
 const { ApolloServer, gql } = require("apollo-server-lambda");
 const jwt = require("jsonwebtoken");
-const graphql = require("graphql");
+//const graphql = require("graphql");
 //const { addResolversToSchema } = require("graphql-tools");
 const { makeExecutableSchema } = require("@graphql-tools/schema");
 
 const JWT_SECRET = process.env.JWT_SECRET;
 
 const connection = require("./database/connection");
-const buildObjectType = require("./graphql/util/buildObjectType");
-const buildFilters = require("./graphql/util/buildFilters");
+//const buildObjectType = require("./graphql/util/buildObjectType");
+//const buildFilters = require("./graphql/util/buildFilters");
+const parseObjectType = require("./graphql/util/parseObjectType");
+const buildFilterType = require("./graphql/util/buildFilterType");
 
-const {
-  StringFilterType,
-  IntFilterType,
-  FloatFilterType,
-  BooleanFilterType,
-} = require("./graphql/util/scalarFilterTypes");
+const scalarFilterTypes = require("./graphql/util/scalarFilterTypes");
 
-const ProductType = require("./graphql/types/Product");
-const ProductVariation = require("./graphql/types/ProductVariation");
-const ProductOptions = require("./graphql/types/ProductOptions");
-const ProductVariationSelectedOption = require("./graphql/types/ProductVariationSelectedOption");
+//const ProductType = require("./graphql/types/Product");
+//const ProductVariation = require("./graphql/types/ProductVariation");
+//const ProductOptions = require("./graphql/types/ProductOptions");
+//const ProductVariationSelectedOption = require("./graphql/types/ProductVariationSelectedOption");
 const { ObjectId } = require("mongodb");
+
+const coreSchemaRequire = require("@serverless-commerce/core/schema");
+const coreSchema = coreSchemaRequire.default;
 
 /**
  * For each type need
@@ -93,7 +93,7 @@ const { ObjectId } = require("mongodb");
   }
 `;*/
 
-const ProductVariationInputType = new graphql.GraphQLInputObjectType({
+/*const ProductVariationInputType = new graphql.GraphQLInputObjectType({
   name: "ProductVariationInputType",
   fields: () => ({
     price: {
@@ -114,7 +114,7 @@ const ProductInputType = new graphql.GraphQLInputObjectType({
     },
   }),
   type: graphql.GraphQLInputType,
-});
+});*/
 
 /*const mutationType = new graphql.GraphQLObjectType({
   name: "Mutation",
@@ -139,56 +139,67 @@ var schema = new graphql.GraphQLSchema({
   mutation: mutationType,
 });*/
 
+// TODO merge core schema with project schema
+
+//Inject mongodb _id into schema
+Object.keys(coreSchema).map((typeKey) => {
+  coreSchema[typeKey].fields[`_id`] = { type: "String" };
+});
+
+/**
+ * Types will be an object of {fieldKey: {typeDef:String, resolve: Object}}
+ * For every object type, there is the base type (all queriable fields),
+ * the filter type (should be same as base type, but it's an input field),
+ * the input type (may have more or less fields, depending in what is allowed)
+ */
 const types = {
-  //Basic scalar input filters
-  StringFilterType: buildObjectType(StringFilterType),
-  FloatFilterType: buildObjectType(FloatFilterType),
-  IntFilterType: buildObjectType(IntFilterType),
-  BooleanFilterType: buildObjectType(BooleanFilterType),
-  //Types
-  Product: buildObjectType(ProductType),
-  ProductFilterType: buildObjectType(buildFilters(ProductType)),
-  ProductVariation: buildObjectType(ProductVariation),
-  ProductVariationFilterType: buildObjectType(buildFilters(ProductVariation)),
-  ProductOptions: buildObjectType(ProductOptions),
-  ProductOptionsFilterType: buildObjectType(buildFilters(ProductOptions)),
-  ProductVariationSelectedOption: buildObjectType(
-    ProductVariationSelectedOption
-  ),
-  ProductVariationSelectedFilterType: buildObjectType(
-    buildFilters(ProductVariationSelectedOption)
-  ),
+  //Add scalar filter input types
+  ...Object.keys(scalarFilterTypes).reduce((t, typeKey) => {
+    t[typeKey] = parseObjectType(typeKey, scalarFilterTypes[typeKey]);
+    return t;
+  }, {}),
+  //Add schema types + their input types
+  ...Object.keys(coreSchema).reduce((t, typeKey) => {
+    //Add type to schema
+    t[typeKey] = parseObjectType(typeKey, coreSchema[typeKey]);
+    //Add type input type to schmea
+    //Add filter type
+    const filterType = buildFilterType(typeKey, coreSchema[typeKey]);
+    t[filterType.name] = parseObjectType(filterType.name, filterType);
+    return t;
+  }, {}),
 };
 
-const typeDefsAuto = Object.keys(types).map((typeName) => {
-  return types[typeName].typeDef;
-}, []);
+console.log({ types });
 
 const typeDefs = [
-  ...typeDefsAuto,
-  buildObjectType(ProductInputType).typeDef,
-  buildObjectType(ProductVariationInputType).typeDef,
+  ...Object.keys(types).map((typeName) => {
+    return types[typeName].typeDef;
+  }, []),
+  //buildObjectType(ProductInputType).typeDef,
+  //buildObjectType(ProductVariationInputType).typeDef,
   `type Query {
-    products(filter: ProductFilterType): [Product]
+    #products(filter: Product__Filter): [Product]
+    products(filter: Product__Filter): [Product]
     product(_id: String) : Product
   }`,
-  `type Mutation {
-    createProduct(product: ProductInputType): Product
+  /*`type Mutation {
+    #createProduct(product: ProductInputType): Product
     deleteProduct(_id:String) : Boolean
-  }`,
+  }`,*/
 ];
 
 /*
 Build resolvers from types
 This is for the case where a type has a resolver for a specific field
 */
-const resolversAuto = Object.keys(types).reduce((a, typeName) => {
+/*const resolversAuto = Object.keys(types).reduce((a, typeName) => {
   if (types[typeName].resolve) a[typeName] = types[typeName].resolve;
   return a;
-}, {});
+}, {});*/
 
 const resolvers = {
-  ...resolversAuto,
+  //...resolversAuto,
   Query: {
     products: async (parent, args, context, info) => {
       // Turn the args.filter into something mongodb can use
@@ -220,7 +231,7 @@ const resolvers = {
     },
   },
 
-  Mutation: {
+  /*Mutation: {
     createProduct: async (_, { product }) => {
       delete product._id;
       const { db, client } = await connection();
@@ -236,7 +247,7 @@ const resolvers = {
       client.close();
       return r.deletedCount === 1;
     },
-  },
+  },*/
 };
 
 const schema = makeExecutableSchema({
