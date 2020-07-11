@@ -6,9 +6,14 @@ const getStringTypeListType = require("./getStringTypeListType");
  * This means we can filter a list
  * @param {GraphQLObjectType} queriedType
  */
-const buildFilterType = (queriedTypeName, queriedType) => {
+const buildInputType = (
+  queriedTypeName,
+  queriedType,
+  { isFilterType = false } = {}
+) => {
   const fields = {};
   const queriedTypeFields = queriedType.fields;
+
   for (const fieldName in queriedTypeFields) {
     const queriedTypeField = queriedTypeFields[fieldName];
 
@@ -18,9 +23,16 @@ const buildFilterType = (queriedTypeName, queriedType) => {
       );
     }
 
+    const isScalar = isScalarStringType(queriedTypeField.type);
+    const typeFieldName = isFilterType
+      ? `${queriedTypeField.type}__Filter`
+      : !isScalar
+      ? `${queriedTypeField.type}__Input`
+      : queriedTypeField.type;
+
     //Scalars
     if (isScalarStringType(queriedTypeField.type)) {
-      fields[fieldName] = { type: `${queriedTypeField.type}__Filter` };
+      fields[fieldName] = { type: typeFieldName };
     }
     // Lists
     else if (getStringTypeListType(queriedTypeField.type)) {
@@ -29,17 +41,17 @@ const buildFilterType = (queriedTypeName, queriedType) => {
     // Other types
     else {
       //fields[fieldName] = { type: buildFilters(queriedTypeField.type) };
-      fields[fieldName] = { type: `${queriedTypeField.type}__Filter` };
+      fields[fieldName] = { type: typeFieldName };
     }
   }
 
   //return new graphql.GraphQLInputObjectType({
   return {
-    name: `${queriedTypeName}__Filter`,
+    name: `${queriedTypeName}__${isFilterType ? `Filter` : `Input`}`,
     fields,
     type: `Input`,
   };
   //});
 };
 
-module.exports = buildFilterType;
+module.exports = buildInputType;

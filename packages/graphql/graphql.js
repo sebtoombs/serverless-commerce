@@ -1,3 +1,4 @@
+const path = require("path");
 const { ApolloServer, gql } = require("apollo-server-lambda");
 const jwt = require("jsonwebtoken");
 //const graphql = require("graphql");
@@ -10,7 +11,7 @@ const connection = require("./database/connection");
 //const buildObjectType = require("./graphql/util/buildObjectType");
 //const buildFilters = require("./graphql/util/buildFilters");
 const parseObjectType = require("./graphql/util/parseObjectType");
-const buildFilterType = require("./graphql/util/buildFilterType");
+const buildInputType = require("./graphql/util/buildInputType");
 
 const scalarFilterTypes = require("./graphql/util/scalarFilterTypes");
 
@@ -22,6 +23,14 @@ const { ObjectId } = require("mongodb");
 
 const coreSchemaRequire = require("@serverless-commerce/core/schema");
 const coreSchema = coreSchemaRequire.default;
+
+const projectSchema = (() => {
+  try {
+    return require(path.join(process.cwd(), "schema"));
+  } catch (e) {
+    return null;
+  }
+})();
 
 /**
  * For each type need
@@ -141,9 +150,16 @@ var schema = new graphql.GraphQLSchema({
 
 // TODO merge core schema with project schema
 
+const mergeSchema = (coreSchema, projectSchema) => {
+  //Todo this probably needs to make sure some required fields are not removed
+  return { ...coreSchema, ...projectSchema };
+};
+
+const typeSchema = mergeSchema(coreSchema, projectSchema);
+
 //Inject mongodb _id into schema
-Object.keys(coreSchema).map((typeKey) => {
-  coreSchema[typeKey].fields[`_id`] = { type: "String" };
+Object.keys(typeSchema).map((typeKey) => {
+  typeSchema[typeKey].fields[`_id`] = { type: "String" };
 });
 
 /**
@@ -159,18 +175,20 @@ const types = {
     return t;
   }, {}),
   //Add schema types + their input types
-  ...Object.keys(coreSchema).reduce((t, typeKey) => {
+  ...Object.keys(typeSchema).reduce((t, typeKey) => {
     //Add type to schema
-    t[typeKey] = parseObjectType(typeKey, coreSchema[typeKey]);
+    t[typeKey] = parseObjectType(typeKey, typeSchema[typeKey]);
     //Add type input type to schmea
+    const inputType = buildInputType(typeKey, typeSchema[typeKey]);
+    t[inputType.name] = parseObjectType(inputType.name, inputType);
     //Add filter type
-    const filterType = buildFilterType(typeKey, coreSchema[typeKey]);
+    const filterType = buildInputType(typeKey, typeSchema[typeKey], {
+      isFilterType: true,
+    });
     t[filterType.name] = parseObjectType(filterType.name, filterType);
     return t;
   }, {}),
 };
-
-console.log({ types });
 
 const typeDefs = [
   ...Object.keys(types).map((typeName) => {
@@ -179,15 +197,21 @@ const typeDefs = [
   //buildObjectType(ProductInputType).typeDef,
   //buildObjectType(ProductVariationInputType).typeDef,
   `type Query {
-    #products(filter: Product__Filter): [Product]
-    products(filter: Product__Filter): [Product]
-    product(_id: String) : Product
+    products(filter:Product__Filter) : [Product]
+    ${Object.keys(types)
+      .map((typeName) => {
+        return types[typeName].query;
+      })
+      .filter(Boolean)
+      .join(`\n`)}
   }`,
   /*`type Mutation {
     #createProduct(product: ProductInputType): Product
     deleteProduct(_id:String) : Boolean
   }`,*/
 ];
+
+//console.log({ typeDefs });
 
 /*
 Build resolvers from types
@@ -223,9 +247,22 @@ const resolvers = {
       client.close();
       return results;
     },
-    product: async (_, { _id }) => {
+    product: async (_, queryFields) => {
       const { db, client } = await connection();
-      const r = await db.collection("products").findOne({ _id });
+
+      const findBy = Object.keys(queryFields)
+        .map((fieldKey) => {
+          const field = queryFields[fieldKey];
+          let value = field;
+          if (fieldKey === `_id`) value = ObjectId(field);
+          if (fieldKey === "slug") value = field.value;
+          return { [fieldKey]: value };
+        })
+        .reduce((o, i) => {
+          return { ...o, ...i };
+        }, {});
+
+      const r = await db.collection("products").findOne(findBy);
       client.close();
       return r;
     },

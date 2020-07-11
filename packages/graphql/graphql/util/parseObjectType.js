@@ -1,4 +1,5 @@
 const getStringTypeListType = require("./getStringTypeListType");
+const isScalarStringType = require("./isScalarStringType");
 
 /**
  * Convert an object representation of a type into its string typedef + resolvers object
@@ -30,7 +31,8 @@ const parseObjectType = (name, objectType) => {
   //Make an array of field defs to join in a moment
   const fieldsArray = [];
 
-  //  console.log(objectType);
+  //a list of fields this type can be queried by
+  const queryFields = [];
 
   Object.keys(objectType.fields).map((fieldKey) => {
     const field = objectType.fields[fieldKey];
@@ -58,15 +60,37 @@ const parseObjectType = (name, objectType) => {
     if (typeof field.resolve === `function`) {
       resolvers[fieldKey] = field.resolve;
     }
+
+    //is this field queriable?
+
+    if (
+      type === `type` &&
+      typeof objectType.query !== `undefined` &&
+      objectType.query.by.indexOf(fieldKey) !== -1 &&
+      !listType
+    ) {
+      const inputType = isScalarStringType(field.type)
+        ? field.type
+        : `${field.type}__Input`;
+      queryFields.push(`${fieldKey}: ${inputType}`);
+    }
   });
 
   const typeString = `${type} ${name} {
     ${fieldsArray.join("\n")}
   }`;
 
+  const queryString = `${name.toLowerCase()}(${queryFields.join(
+    ", "
+  )}) : ${name}`;
+
   return {
     typeDef: typeString,
     resolve: Object.keys(resolvers).length ? resolvers : null,
+    query:
+      typeof objectType.query !== `undefined` && queryFields.length
+        ? queryString
+        : null,
   };
 };
 

@@ -1,12 +1,11 @@
 const Product = {
   name: "Product",
+  title: "Product",
   pluralName: "Products",
+  query: {
+    by: ["_id", "name", "slug"],
+  },
   fields: {
-    test: {
-      label: "Do you want to do the thing?",
-      type: "Boolean",
-      hidden: true,
-    },
     prices: {
       type: "[Int]",
     },

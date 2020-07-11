@@ -15,7 +15,7 @@ const port = process.env.PORT || 8080;
 
 function start() {
   state.server = require("./server")().listen(port, () => {
-    debug("Started on " + port);
+    debug("Dev Server Started on " + port);
   });
   state.server.on("connection", (socket) => {
     debug("Add socket", state.sockets.length + 1);
@@ -55,7 +55,7 @@ function restart() {
   state.server.close(() => {
     debug("Server is closed");
     debug("\n----------------- restarting -------------");
-    start(config);
+    start();
   });
 }
 
@@ -64,9 +64,15 @@ export default function run() {
     .then(() => {
       start();
       chokidar
-        .watch(".", {
-          ignored: ["node_modules", ".git"],
-        })
+        .watch(
+          [
+            __dirname,
+            path.resolve(path.join(__dirname, "..", "..", "graphql")),
+          ],
+          {
+            ignored: ["node_modules", ".git"],
+          }
+        )
         .on("all", (event, at) => {
           if (event === "add") {
             debug("Watching for", at);

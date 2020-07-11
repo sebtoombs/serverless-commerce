@@ -1,5 +1,6 @@
 const ProductOption = {
   name: "ProductOption",
+  title: "Product Option",
   pluralName: "ProductOptions",
   fields: {
     name: { type: "String" },

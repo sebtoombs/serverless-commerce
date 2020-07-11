@@ -4,6 +4,7 @@ require = require("esm")(module /*, options*/);
 
 if (process.argv && process.argv.length >= 3) {
   const command = process.argv[2];
+
   if (command === `dev`) {
     const server = require("./src/dev");
     server.default();
